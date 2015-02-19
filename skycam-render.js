@@ -32,7 +32,12 @@ queryDiskImages(rawDir, targetDate, function(targetImages) {
 			deleteTargetImages(targetImages);
 		
 			// Submit video to skycloud
-			shipToSkycloud(targetDate, renderOutputPath);
+			shipToSkycloud(targetDate, renderOutputPath, function() {
+
+				// Delete locally rendered video
+				deleteVideo(renderOutputPath);
+
+			});
 		
 		});
 	
@@ -80,9 +85,8 @@ function queryDiskImages(rawDir, targetDate, callback) {
 	
 }
 
-function shipToSkycloud(dateHour, videoPath) {
+function shipToSkycloud(dateHour, videoPath, callback) {
 
-	
 	var dateHourSplit = dateHour.split('_');
 	var date = dateHourSplit[0],
 		hour = dateHourSplit[1];
@@ -105,6 +109,7 @@ function shipToSkycloud(dateHour, videoPath) {
 	        if (err) throw err;
 	        
 	        console.log(" >> Skycloud Upload Complete!");
+	        callback();
 
 	    });
 		
@@ -172,6 +177,10 @@ function deleteTargetImages(targetImages) {
 		fs.unlinkSync(imagePath);
 	});
 	return true;
+}
+
+function deleteVideo(targetVideo) {
+	return fs.unlinkSync(targetVideo);
 }
 
 function formatDateHour(timestamp) {
